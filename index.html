@@ -210,7 +210,7 @@
 <div id="printArea"></div>
 
 <script>
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyH4RjnB-U2nwITABrA3T6b5zkl-JXBJv5oUplrQ1wGSMsAapb9I1OFU4teTvRzkFlu/exec"; 
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxv3D9yr_dxUbbw2t5zAjdpNPsZmWswd3pJWzYSFsvDvhMSuPmoGKuUBqly3U2UKAsg/exec"; 
   
   let dbInventario = {}, dbPrecios = {}, datosEmpresa = {};
   let modoEdicion = false;
@@ -393,14 +393,19 @@
       return;
     }
 
-    const payload = { action: modoEdicion ? 'editarFactura' : 'crearFactura', data: fData };
+    const payload = { action: modoEdicion ? 'editarFactura' : 'guardarFactura', data: fData };
 
-    fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-      .then(() => {
-        alert("Operación procesada con éxito.");
-        document.getElementById('btnImprimirTop').style.display = 'inline-block';
-        if(!modoEdicion) {
-          cargarDatosIniciales();
+    fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) })
+      .then(res => res.json())
+      .then(res => {
+        if(res.success) {
+          alert("Operación procesada con éxito.");
+          document.getElementById('btnImprimirTop').style.display = 'inline-block';
+          if(!modoEdicion) {
+            cargarDatosIniciales();
+          }
+        } else {
+          alert("Error al guardar: " + (res.error || "Error desconocido"));
         }
       }).catch(err => alert("Error enviando datos: " + err));
   }
@@ -550,7 +555,7 @@
   function eliminarFactura() {
     const noFact = document.getElementById('noFactura').value;
     if(!confirm(`¿Desea eliminar la factura No. ${noFact}?`)) return;
-    fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'eliminarFactura', noFactura: noFact }) })
+    fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'eliminarFactura', noFactura: noFact }) })
       .then(() => { 
         alert("Registro eliminado."); 
         modoEdicion = false;
